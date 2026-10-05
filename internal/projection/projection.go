@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 // AccountView is what the read API returns.

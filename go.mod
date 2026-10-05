@@ -1,4 +1,4 @@
-module github.com/example/eventbank
+module github.com/ShrinidhiMane/eventbank
 
 go 1.22
 

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 func ev(t *testing.T, id string, v int) events.Event {

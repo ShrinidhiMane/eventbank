@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 // Alert is a notification produced by a downstream subscriber.

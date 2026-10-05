@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 // given/when/then style: given a history, when a command runs, then expect events or an error.

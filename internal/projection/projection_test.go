@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 func e(t *testing.T, typ string, v int, data any) events.Event {

@@ -5,9 +5,9 @@ package main
 import (
 	"log/slog"
 
-	"github.com/example/eventbank/internal/broker"
-	"github.com/example/eventbank/internal/kafka"
-	"github.com/example/eventbank/internal/metrics"
+	"github.com/ShrinidhiMane/eventbank/internal/broker"
+	"github.com/ShrinidhiMane/eventbank/internal/kafka"
+	"github.com/ShrinidhiMane/eventbank/internal/metrics"
 )
 
 func init() {

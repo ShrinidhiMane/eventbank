@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/example/eventbank/internal/events"
-	"github.com/example/eventbank/internal/metrics"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/metrics"
 )
 
 var quiet = slog.New(slog.NewTextHandler(io.Discard, nil))

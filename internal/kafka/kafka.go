@@ -25,9 +25,9 @@ import (
 
 	ck "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 
-	"github.com/example/eventbank/internal/broker"
-	"github.com/example/eventbank/internal/events"
-	"github.com/example/eventbank/internal/metrics"
+	"github.com/ShrinidhiMane/eventbank/internal/broker"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/metrics"
 )
 
 // Broker implements broker.Broker on Kafka.

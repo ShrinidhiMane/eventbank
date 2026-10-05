@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/example/eventbank/internal/events"
-	"github.com/example/eventbank/internal/metrics"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/metrics"
 )
 
 // Handler processes one event. Returning an error triggers a retry.

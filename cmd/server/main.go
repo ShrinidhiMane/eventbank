@@ -16,12 +16,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/example/eventbank/internal/api"
-	"github.com/example/eventbank/internal/app"
-	"github.com/example/eventbank/internal/broker"
-	"github.com/example/eventbank/internal/eventstore"
-	"github.com/example/eventbank/internal/metrics"
-	"github.com/example/eventbank/internal/projection"
+	"github.com/ShrinidhiMane/eventbank/internal/api"
+	"github.com/ShrinidhiMane/eventbank/internal/app"
+	"github.com/ShrinidhiMane/eventbank/internal/broker"
+	"github.com/ShrinidhiMane/eventbank/internal/eventstore"
+	"github.com/ShrinidhiMane/eventbank/internal/metrics"
+	"github.com/ShrinidhiMane/eventbank/internal/projection"
 )
 
 // newKafkaBroker is set by kafka.go when built with -tags kafka.

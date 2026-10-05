@@ -9,7 +9,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 // ErrConcurrency is returned when the expected version doesn't match the stream's

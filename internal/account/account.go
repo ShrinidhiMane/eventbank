@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/example/eventbank/internal/events"
+	"github.com/ShrinidhiMane/eventbank/internal/events"
 )
 
 // Business-rule errors.
