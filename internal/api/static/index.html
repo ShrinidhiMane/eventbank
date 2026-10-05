@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EventBank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf9; --panel: #ffffff; --ink: #18181b; --ink-2: #3f3f46; --muted: #8a8a93; --line: #ececec; --soft: #f4f4f3;
+    --accent: #3b5bdb; --in: #2b8a3e; --out: #c2410c; --err: #c92a2a;
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111113; --panel:#18181b; --ink:#f4f4f5; --ink-2:#d4d4d8; --muted:#8b8b94; --line:#27272a; --soft:#1f1f23;
+            --accent:#8da2fb; --in:#69db7c; --out:#ffa94d; --err:#ff8787; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.55 var(--sans); -webkit-font-smoothing:antialiased; }
+
+  header { max-width:1240px; margin:0 auto; padding:36px 32px 8px; display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+  header h1 { margin:0; font-size:22px; font-weight:600; letter-spacing:-.02em; }
+  header p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+  .live { margin-left:auto; display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+  .live i { width:6px; height:6px; border-radius:50%; background:var(--in); }
+
+  .tiles { max-width:1240px; margin:0 auto; padding:24px 32px 0; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:0; }
+  .tile { padding:4px 24px; border-left:1px solid var(--line); }
+  .tile:first-child { padding-left:0; border-left:0; }
+  .tile b { display:block; font-size:28px; font-weight:500; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+  .tile span { color:var(--muted); font-size:12px; }
+  @media (max-width: 760px) {
+    header { padding:24px 16px 4px; }
+    .tiles { grid-template-columns:repeat(2, minmax(0,1fr)); padding:16px 16px 0; row-gap:16px; }
+    .tile:nth-child(3) { padding-left:0; border-left:0; }
+  }
+
+  main { max-width:1240px; margin:0 auto; display:grid; grid-template-columns: minmax(0,1.65fr) minmax(0,1fr); gap:20px; padding:28px 32px 48px; }
+  @media (max-width: 960px) { main { grid-template-columns: 1fr; padding:20px 16px 32px; } }
+  .col { display:flex; flex-direction:column; gap:20px; min-width:0; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; min-width:0; }
+  h2 { font-size:13px; font-weight:600; margin:0 0 16px; display:flex; align-items:baseline; gap:8px; }
+  h2 .sub { font-weight:400; color:var(--muted); font-size:12px; }
+  h2 .badge { margin-left:auto; }
+
+  form, .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  input { font:inherit; padding:8px 11px; border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:8px; min-width:0; outline:none; transition:border-color .15s; }
+  input:focus { border-color:var(--ink-2); }
+  input::placeholder { color:var(--muted); }
+  button { font:inherit; font-weight:500; padding:8px 13px; border:1px solid var(--line); background:var(--panel); color:var(--ink-2); border-radius:8px; cursor:pointer; transition:background .15s, border-color .15s; }
+  button:hover { background:var(--soft); border-color:#d4d4d4; }
+  button.primary { background:var(--ink); color:var(--panel); border-color:var(--ink); }
+  button.primary:hover { opacity:.88; background:var(--ink); }
+  button.quiet { border-color:transparent; color:var(--muted); }
+  button.quiet:hover { color:var(--err); background:transparent; }
+
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  tbody tr:last-child td { border-bottom:0; }
+  th { font-weight:500; font-size:12px; color:var(--muted); }
+  td.num { font-variant-numeric:tabular-nums; text-align:right; font-weight:500; }
+  .wrap { overflow-x:auto; }
+  .who a { font-weight:500; color:var(--ink); text-decoration:none; cursor:pointer; }
+  .who a:hover { color:var(--accent); }
+  .id { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .status { font-size:12px; color:var(--muted); display:inline-flex; align-items:center; gap:6px; }
+  .status::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--muted); }
+  .status.open { color:var(--ink-2); } .status.open::before { background:var(--in); }
+  .ver { font-family:var(--mono); font-size:12px; color:var(--muted); }
+  .acts { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .acts input { width:92px; padding:6px 9px; }
+  .acts button { padding:6px 10px; font-size:12.5px; }
+
+  .feed { list-style:none; margin:0; padding:0; max-height:360px; overflow:auto; }
+  .feed li { padding:10px 0; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:baseline; font-size:13px; }
+  .feed li:last-child { border-bottom:0; }
+  .feed .m { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--mono); font-size:11px; margin-left:auto; }
+  .ev { color:var(--ink-2); white-space:nowrap; flex:none; display:inline-flex; align-items:center; gap:8px; }
+  .ev::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--muted); flex:none; transform:translateY(-1px); }
+  .ev.MoneyDeposited::before { background:var(--in); }
+  .ev.MoneyWithdrawn::before { background:var(--out); }
+  .ev.AccountOpened::before  { background:var(--accent); }
+  .amt { font-variant-numeric:tabular-nums; flex:none; color:var(--ink); }
+  .amt.plus { color:var(--in); } .amt.minus { color:var(--out); }
+  .new { animation: fade .8s ease-out; }
+  @keyframes fade { from { opacity:0; transform:translateY(-3px); } }
+  .empty { color:var(--muted); font-size:13px; padding:4px 0; }
+
+  .msg { min-height:20px; font-size:12.5px; margin-top:10px; }
+  .msg.err { color:var(--err); } .msg.ok { color:var(--in); }
+  .muted { color:var(--muted); }
+
+  .badge { font-size:12px; font-weight:500; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .badge.hot { color:var(--err); }
+  .rate { display:flex; align-items:center; gap:14px; }
+  .rate b { font-weight:500; min-width:40px; text-align:right; font-variant-numeric:tabular-nums; }
+  input[type=range] { padding:0; flex:1; min-width:120px; accent-color: var(--ink); border:0; }
+  .hint { color:var(--muted); font-size:12.5px; margin:10px 0 14px; }
+
+  .hist-state { display:flex; align-items:baseline; gap:12px; padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:8px; }
+  .hist-state b { color:var(--ink); font-size:26px; font-weight:500; letter-spacing:-.02em; }
+  .timeline { list-style:none; margin:0; padding:0; }
+  .timeline li { display:flex; gap:12px; align-items:baseline; padding:7px 0; font-size:13px; }
+  .timeline .v { font-family:var(--mono); font-size:11px; color:var(--muted); width:22px; }
+
+  pre.metrics { font-family:var(--mono); font-size:11px; color:var(--ink-2); background:var(--soft); padding:12px; border-radius:8px; overflow:auto; max-height:220px; margin:0 0 14px; }
+  .meters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; margin-bottom:16px; }
+  .meter span { font-size:12px; color:var(--muted); display:block; }
+  .meter b { font-size:18px; font-weight:500; font-variant-numeric:tabular-nums; }
+  details summary { cursor:pointer; color:var(--muted); font-size:12px; margin-bottom:10px; list-style:none; }
+  details summary::before { content:"＋ "; } details[open] summary::before { content:"－ "; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>EventBank</h1><p>Event sourcing · CQRS · pub/sub · retries &amp; dead-letter queue</p></div>
+  <div class="live"><i></i>Live</div>
+</header>
+
+<div class="tiles">
+  <div class="tile"><b id="t-acc">0</b><span>Accounts</span></div>
+  <div class="tile"><b id="t-open">0</b><span>Open</span></div>
+  <div class="tile"><b id="t-bal">$0</b><span>Total balance</span></div>
+  <div class="tile"><b id="t-ev">0</b><span>Events published</span></div>
+</div>
+
+<main>
+  <div class="col">
+    <section>
+      <h2>Accounts <span class="sub">read model</span></h2>
+      <form id="open">
+        <input id="owner" placeholder="New account owner's name" required style="flex:1; min-width:180px">
+        <button class="primary">Open account</button>
+      </form>
+      <div id="msg" class="msg"></div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>Owner</th><th>Status</th><th style="text-align:right">Balance</th><th>Version</th><th></th></tr></thead>
+          <tbody id="accounts"><tr><td colspan="5" class="empty">No accounts yet. Open one above to get started.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Event store <span class="sub" id="hist-title">select an account</span></h2>
+      <div id="hist" class="muted">Click an owner's name to see its event stream and replay its balance at any point in time.</div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section>
+      <h2>Live events</h2>
+      <ul id="feed" class="feed"><li class="empty">Waiting for events…</li></ul>
+    </section>
+
+    <section>
+      <h2>Error handling <span class="badge" id="dlq-n">0 dead letters</span></h2>
+      <div class="rate">
+        <span>Notifier failure rate</span>
+        <input type="range" id="rate" min="0" max="1" step="0.05" value="0">
+        <b id="rate-v">0%</b>
+      </div>
+      <p class="hint">Raise this to make the simulated email service flaky. Failed deliveries retry with backoff, then land in the dead-letter queue.</p>
+      <div class="row"><button id="replay">Replay dead letters</button></div>
+      <ul id="dlq" class="feed" style="max-height:170px; margin-top:8px"></ul>
+    </section>
+
+    <section>
+      <h2>Alerts <span class="sub">large withdrawals</span></h2>
+      <ul id="alerts" class="feed" style="max-height:170px"><li class="empty">None yet.</li></ul>
+    </section>
+
+    <section>
+      <h2>Monitoring</h2>
+      <div class="meters" id="meters"></div>
+      <details><summary>All counters</summary><pre class="metrics" id="metrics">loading…</pre></details>
+      <button id="rebuild">Rebuild projection from store</button>
+    </section>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const money = c => (c/100).toLocaleString(undefined,{style:'currency',currency:'USD'});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const palette = ['#5b3df5','#c2389d','#109868','#e0710f','#2f6fec','#d6304a','#0e9aa7','#8a5cf6'];
+const colorFor = s => { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return palette[h % palette.length]; };
+const initials = s => s.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const evColor = {AccountOpened:'var(--blue)', MoneyDeposited:'var(--green)', MoneyWithdrawn:'var(--orange)', AccountClosed:'var(--muted)'};
+const evLabel = {AccountOpened:'Opened', MoneyDeposited:'Deposit', MoneyWithdrawn:'Withdrawal', AccountClosed:'Closed'};
+function evDetail(e) {
+  if (e.type === 'MoneyDeposited') return `<span class="amt plus">+${money(e.data.amount)}</span>`;
+  if (e.type === 'MoneyWithdrawn') return `<span class="amt minus">−${money(e.data.amount)}</span>`;
+  if (e.type === 'AccountOpened') return `<span class="amt">${esc(e.data.owner)}</span>`;
+  return '';
+}
+
+async function api(method, path, body) {
+  const r = await fetch(path, {method, headers:{'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : undefined});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+function say(text, ok) { const m = $('#msg'); m.textContent = text; m.className = 'msg ' + (ok ? 'ok' : 'err'); }
+
+async function refresh() {
+  const [accounts, totals, metrics, dlq, alerts, notifier] = await Promise.all([
+    api('GET','/accounts'), api('GET','/totals'), api('GET','/metrics'), api('GET','/dlq'), api('GET','/alerts'), api('GET','/notifier')]);
+  $('#t-acc').textContent = totals.accounts;
+  $('#t-open').textContent = totals.open_accounts;
+  $('#t-bal').textContent = money(totals.total_balance_cents);
+  $('#t-ev').textContent = metrics.counters.events_published || 0;
+
+  const tb = $('#accounts');
+  // Keep what the user has typed: this table is redrawn every few seconds.
+  const typed = {};
+  tb.querySelectorAll('[data-amt]').forEach(i => { if (i.value) typed[i.dataset.amt] = i.value; });
+  const focusedId = document.activeElement?.dataset?.amt;
+  tb.innerHTML = accounts.length ? '' : '<tr><td colspan="5" class="empty">No accounts yet. Open one above to get started.</td></tr>';
+  for (const a of accounts) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><div class="who"><a data-hist="${a.id}">${esc(a.owner)}</a><div class="id">${a.id}</div></div></td>
+      <td><span class="status ${a.status}">${a.status === "open" ? "Open" : "Closed"}</span></td>
+      <td class="num">${money(a.balance_cents)}</td><td><span class="ver">${a.version}</span></td>
+      <td>${a.status === 'open' ? `<div class="acts"><input type="number" min="0.01" step="0.01" placeholder="$0.00" data-amt="${a.id}">
+        <button data-op="deposit" data-id="${a.id}">Deposit</button><button data-op="withdraw" data-id="${a.id}">Withdraw</button>
+        <button class="quiet" data-op="close" data-id="${a.id}">Close</button></div>` : '<span class="muted">—</span>'}</td>`;
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll('[data-amt]').forEach(i => {
+    if (typed[i.dataset.amt]) i.value = typed[i.dataset.amt];
+    if (i.dataset.amt === focusedId) { i.focus(); }
+  });
+
+  const c = metrics.counters;
+  const errs = Object.entries(c).filter(([k]) => k.startsWith('handler_errors_')).reduce((s, [, v]) => s + v, 0);
+  $('#meters').innerHTML = [
+    ['Commands accepted', c.commands_accepted || 0, 'var(--green)'],
+    ['Commands rejected', c.commands_rejected || 0, 'var(--orange)'],
+    ['Handler errors', errs, 'var(--red)'],
+    ['Avg HTTP latency', (metrics.timers.http_latency?.avg_ms ?? 0).toFixed(2) + ' ms', 'var(--blue)'],
+  ].map(([l, v]) => `<div class="meter"><span>${l}</span><b>${v}</b></div>`).join('');
+  const counters = Object.entries(c).sort().map(([k,v]) => `${k.padEnd(34)} ${v}`).join('\n');
+  const timers = Object.entries(metrics.timers).sort().map(([k,t]) => `${k.padEnd(34)} n=${t.count} avg=${t.avg_ms.toFixed(2)}ms max=${t.max_ms.toFixed(2)}ms`).join('\n');
+  $('#metrics').textContent = counters + (timers ? '\n\n' + timers : '') || '(no metrics yet)';
+
+  $('#dlq-n').textContent = dlq.length === 1 ? '1 dead letter' : `${dlq.length} dead letters`;
+  $('#dlq-n').className = 'badge' + (dlq.length ? ' hot' : '');
+  $('#dlq').innerHTML = dlq.slice(-20).reverse().map(d => `<li><span class="ev ${d.event.type}">${evLabel[d.event.type] || d.event.type}</span><span class="m">${esc(d.subscriber)}: ${esc(d.error)} · ${d.attempts} tries</span></li>`).join('');
+  $('#alerts').innerHTML = alerts.length ? alerts.map(a => `<li><span class="ev MoneyWithdrawn">${esc(a.message[0].toUpperCase() + a.message.slice(1))}</span><span class="m">${a.account_id}</span></li>`).join('') : '<li class="empty">None yet. Withdraw $1,000 or more to trigger one.</li>';
+  if (document.activeElement !== $('#rate')) { $('#rate').value = notifier.failure_rate; $('#rate-v').textContent = Math.round(notifier.failure_rate*100) + '%'; }
+}
+
+let refreshTimer;
+function soon() { clearTimeout(refreshTimer); refreshTimer = setTimeout(refresh, 120); }
+
+$('#open').addEventListener('submit', async e => {
+  e.preventDefault();
+  try { const r = await api('POST','/accounts',{owner: $('#owner').value.trim()}); $('#owner').value=''; say('Opened account ' + r.id, true); }
+  catch (err) { say(err.message); }
+  soon();
+});
+
+$('#accounts').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('[data-amt]')) {
+    e.preventDefault();
+    document.querySelector(`button[data-op="deposit"][data-id="${e.target.dataset.amt}"]`).click();
+  }
+});
+
+$('#accounts').addEventListener('click', async e => {
+  const h = e.target.closest('[data-hist]');
+  if (h) return showHistory(h.dataset.hist);
+  const b = e.target.closest('button[data-op]');
+  if (!b) return;
+  const id = b.dataset.id, op = b.dataset.op;
+  try {
+    if (op === 'close') await api('POST', `/accounts/${id}/close`, {reason:'closed from dashboard'});
+    else {
+      const input = document.querySelector(`[data-amt="${id}"]`);
+      const amount = parseFloat(input.value);
+      if (!(amount > 0)) throw new Error('Enter an amount first');
+      await api('POST', `/accounts/${id}/${op}`, {amount});
+      input.value = '';
+    }
+    say(`${op[0].toUpperCase() + op.slice(1)} accepted`, true);
+  } catch (err) { say(`${op[0].toUpperCase() + op.slice(1)} rejected: ${err.message}`); }
+  soon();
+});
+
+async function showHistory(id, version) {
+  const evs = await api('GET', `/accounts/${id}/events`);
+  const v = version || evs.length;
+  const state = await api('GET', `/accounts/${id}/at/${v}`);
+  $('#hist').classList.remove('muted');
+  $('#hist-title').textContent = `${state.owner} · ${evs.length} events`;
+  $('#hist').innerHTML = `<div class="row"><span class="muted">Replay to version</span>
+      <input type="range" id="ver" min="1" max="${evs.length}" value="${v}"><span class="ver">v${v}</span></div>
+    <div class="hist-state"><b>${money(state.balance_cents)}</b><span class="muted">balance at version ${v}${state.closed ? ' · closed' : ''}</span></div>
+    <ul class="timeline">${evs.slice(0, v).map(e => `<li><span class="v">v${e.version}</span><span class="ev ${e.type}">${evLabel[e.type] || e.type}</span>${evDetail(e)}</li>`).join('')}</ul>`;
+  $('#ver').addEventListener('input', ev => showHistory(id, +ev.target.value));
+}
+
+$('#rate').addEventListener('input', e => $('#rate-v').textContent = Math.round(e.target.value*100) + '%');
+$('#rate').addEventListener('change', async e => { await api('POST','/notifier',{failure_rate:+e.target.value}); soon(); });
+$('#replay').addEventListener('click', async () => { const r = await api('POST','/dlq/replay'); say(`Replayed ${r.replayed} dead letters`, true); setTimeout(refresh, 800); });
+$('#rebuild').addEventListener('click', async () => { const r = await api('POST','/admin/rebuild'); say(`Rebuilt read model from ${r.replayed_events} events in ${r.took_ms}ms`, true); soon(); });
+
+const feed = $('#feed');
+const es = new EventSource('/stream');
+es.onmessage = m => {
+  const e = JSON.parse(m.data);
+  if (feed.firstElementChild && feed.firstElementChild.classList.contains('empty')) feed.innerHTML = '';
+  const li = document.createElement('li'); li.className = 'new';
+  li.innerHTML = `<span class="ev ${e.type}">${evLabel[e.type] || e.type}</span>${evDetail(e)}<span class="m">${e.aggregate_id} · v${e.version}</span>`;
+  feed.prepend(li);
+  while (feed.children.length > 100) feed.lastChild.remove();
+  soon();
+};
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
